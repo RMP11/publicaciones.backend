@@ -11,6 +11,8 @@ export async function usuarioSeeder() {
       contrasena:
         '$2b$10$s5ihrurtiPgvq3MBKlKzYuBW956FpUvgT1FtJxPs.f3Sfwo.xaT4i',
       nombre: 'Juan Perez',
+      usuarioCreador: 0,
+      usuarioActualizador: 0,
     },
   });
 

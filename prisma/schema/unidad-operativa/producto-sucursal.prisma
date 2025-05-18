@@ -1,0 +1,18 @@
+model ProductoSucursal {
+  id    Int @id @default(autoincrement())
+  stock Int
+
+  producto   Producto @relation(fields: [productId], references: [id])
+  productId  Int
+  sucursal   Sucursal @relation(fields: [sucursalId], references: [id])
+  sucursalId Int
+
+  usuarioCreador      Int?
+  usuarioActualizador Int?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now()) @updatedAt
+  deletedAt           DateTime?
+
+  @@unique([productId, sucursalId])
+  @@map("producto_sucursal")
+}

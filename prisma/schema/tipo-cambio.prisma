@@ -1,7 +1,9 @@
-model Permiso {
-  id            Int          @id @default(autoincrement())
-  nombre        String       @unique
-  rolesPermisos RolPermiso[]
+model TipoCambio {
+  id         Int      @id @default(autoincrement())
+  fecha      DateTime
+  moneda     String
+  tasaCompra Float
+  tasaVenta  Float
 
   usuarioCreador      Int?
   usuarioActualizador Int?
@@ -9,5 +11,5 @@ model Permiso {
   updatedAt           DateTime  @default(now()) @updatedAt
   deletedAt           DateTime?
 
-  @@map("permisos")
+  @@map("tipo_cambio")
 }

@@ -4,9 +4,11 @@ model Publicaciones {
   contenido String
   autor     String
 
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
+  usuarioCreador      Int?
+  usuarioActualizador Int?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now()) @updatedAt
+  deletedAt           DateTime?
 
   @@map("publicaciones")
 }
