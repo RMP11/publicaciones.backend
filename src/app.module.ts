@@ -5,14 +5,18 @@ import { ConfigModule } from '@nestjs/config';
 import { validate } from '../env.validation';
 import { PublicacionesModule } from './modules/publicaciones/publicaciones.module';
 import { SeguridadModule } from './modules/seguridad/seguridad.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { VentasModule } from './modules/ventas/infraestructure/ventas.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       validate,
     }),
+    PrismaModule,
     SeguridadModule,
     PublicacionesModule,
+    VentasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
