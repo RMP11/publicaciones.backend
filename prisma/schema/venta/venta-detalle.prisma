@@ -6,8 +6,8 @@ model VentaDetalle {
   producto   Producto @relation(fields: [productoId], references: [id])
   productoId Int
 
-  venta  Venta @relation(fields: [saleId], references: [id])
-  saleId Int
+  venta   Venta @relation(fields: [ventaId], references: [id])
+  ventaId Int
 
   usuarioCreador      Int?
   usuarioActualizador Int?
