@@ -29,10 +29,11 @@ export class AuthService {
       throw new UnauthorizedException('Acceso no autorizado');
     }
 
-    const payload = { sub: usuario?.id, correo: signInDto.correo };
+    const usuarioSinContrasena = { ...usuario, contrasena: undefined };
+
+    const payload = { sub: usuarioSinContrasena, correo: signInDto.correo };
     return {
-      ...usuario,
-      contrasena: undefined,
+      ...usuarioSinContrasena,
       accessToken: await this.jwtService.signAsync(payload),
     };
   }

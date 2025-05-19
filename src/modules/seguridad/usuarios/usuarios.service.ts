@@ -56,6 +56,11 @@ export class UsuariosService {
   async findOne(where?: { id?: number; correo?: string }) {
     return await this._prismaService.usuario.findUnique({
       where: { id: where?.id, correo: where?.correo, deletedAt: null },
+      include: {
+        empleado: {
+          select: { id: true },
+        },
+      },
     });
   }
 
