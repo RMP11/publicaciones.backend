@@ -3,7 +3,7 @@ model Usuario {
   correo        String       @unique
   contrasena    String
   nombre        String
-  Empleado      Empleado?
+  empleado      Empleado?
   usuariosRoles UsuarioRol[]
 
   usuarioCreador      Int?
