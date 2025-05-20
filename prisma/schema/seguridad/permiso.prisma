@@ -3,8 +3,8 @@ model Permiso {
   nombre        String       @unique
   rolesPermisos RolPermiso[]
 
-  usuarioCreador      Int?
-  usuarioActualizador Int?
+  usuarioCreadorId      Int?
+  usuarioActualizadorId Int?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @default(now()) @updatedAt
   deletedAt           DateTime?

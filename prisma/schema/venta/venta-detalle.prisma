@@ -9,8 +9,8 @@ model VentaDetalle {
   venta   Venta @relation(fields: [ventaId], references: [id])
   ventaId Int
 
-  usuarioCreador      Int?
-  usuarioActualizador Int?
+  usuarioCreadorId      Int?
+  usuarioActualizadorId Int?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @default(now()) @updatedAt
   deletedAt           DateTime?

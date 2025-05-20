@@ -4,8 +4,8 @@ model RolPermiso {
   rol       Rol     @relation(fields: [rolId], references: [id])
   permiso   Permiso @relation(fields: [permisoId], references: [id])
 
-  usuarioCreador      Int?
-  usuarioActualizador Int?
+  usuarioCreadorId      Int?
+  usuarioActualizadorId Int?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @default(now()) @updatedAt
   deletedAt           DateTime?

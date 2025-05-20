@@ -4,8 +4,8 @@ model Publicaciones {
   contenido String
   autor     String
 
-  usuarioCreador      Int?
-  usuarioActualizador Int?
+  usuarioCreadorId      Int?
+  usuarioActualizadorId Int?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @default(now()) @updatedAt
   deletedAt           DateTime?
