@@ -8,6 +8,7 @@ import { SeguridadModule } from './modules/seguridad/seguridad.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { VentasModule } from './modules/ventas/infraestructure/ventas.module';
 import { ProductosModulo } from './modules/productos/infraestructure/productos.module';
+import { SucursalesModule } from './modules/unidad-operativa/sucursales/infraestructure/sucursales.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ProductosModulo } from './modules/productos/infraestructure/productos.m
     PublicacionesModule,
     VentasModule,
     ProductosModulo,
+    SucursalesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
