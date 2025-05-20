@@ -6,8 +6,8 @@ export async function permisosSeeder() {
   console.log('Seeding permisos...');
 
   const data = [
-    { nombre: 'Super Admin', usuarioCreador: 0, usuarioActualizador: 0 },
-    { nombre: 'admin', usuarioCreador: 0, usuarioActualizador: 0 },
+    { nombre: 'Super Admin', usuarioCreadorId: 0, usuarioActualizadorId: 0 },
+    { nombre: 'admin', usuarioCreadorId: 0, usuarioActualizadorId: 0 },
   ];
 
   await prisma.permiso.createMany({
