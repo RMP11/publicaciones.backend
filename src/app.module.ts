@@ -7,6 +7,7 @@ import { PublicacionesModule } from './modules/publicaciones/publicaciones.modul
 import { SeguridadModule } from './modules/seguridad/seguridad.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { VentasModule } from './modules/ventas/infraestructure/ventas.module';
+import { ProductosModulo } from './modules/productos/infraestructure/productos.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { VentasModule } from './modules/ventas/infraestructure/ventas.module';
     SeguridadModule,
     PublicacionesModule,
     VentasModule,
+    ProductosModulo,
   ],
   controllers: [AppController],
   providers: [AppService],
