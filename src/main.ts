@@ -24,7 +24,7 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('apidoc', app, documentFactory, {
+  SwaggerModule.setup('api', app, documentFactory, {
     swaggerOptions: {
       persistAuthorization: true,
       filter: true,
@@ -36,7 +36,7 @@ async function bootstrap() {
   await app.listen(port ?? 5000, '0.0.0.0').then(async () => {
     logger.verbose(`Server running on ${await app.getUrl()}`);
     logger.verbose(`Api running on ${await app.getUrl()}` + '/api');
-    logger.verbose(`Swagger running on ${(await app.getUrl()) + '/apidoc'}`);
+    logger.verbose(`Swagger running on ${(await app.getUrl()) + '/api'}`);
   });
 }
 
