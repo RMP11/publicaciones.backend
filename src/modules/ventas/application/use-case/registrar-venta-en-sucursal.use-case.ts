@@ -25,6 +25,6 @@ export class RegistrarVentaEnSucursal {
     };
     const venta = Venta.create(crearVenta);
 
-    await this._ventaRepository.create(venta);
+    return await this._ventaRepository.create(venta);
   }
 }
