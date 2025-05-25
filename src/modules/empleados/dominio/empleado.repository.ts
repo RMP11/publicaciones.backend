@@ -1,1 +1,1 @@
-export class Empleado {}
+export class EmpleadoRepository {}

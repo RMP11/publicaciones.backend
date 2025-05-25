@@ -1,1 +1,1 @@
-export class Facturas {}
+export class FacturasRepository {}

@@ -1,31 +1,38 @@
-export class InventarioSucursal {
+export class Almacen {
   private constructor(
-    public productoId: number,
+    public readonly id: number,
+    public nombre: string,
+    public direccion: string,
+    public telefono: string,
     public sucursalId: number,
-    public cantidad: number,
     public usuarioCreadorId: number,
     public usuarioActualizadorId: number,
   ) {}
 
   public static create({
-    productoId,
+    id,
+    nombre,
+    direccion,
+    telefono,
     sucursalId,
-    cantidad,
     usuarioCreadorId,
     usuarioActualizadorId,
-  }: any): InventarioSucursal {
+  }: any): Almacen {
     // 🛡️ Invariantes del dominio
-    if (productoId <= 0) throw new Error('ID de producto inválido');
+    if (!nombre) throw new Error('El nombre del almacén es obligatorio');
+    if (!direccion) throw new Error('La dirección del almacén es obligatoria');
+    if (!telefono) throw new Error('El teléfono del almacén es obligatorio');
     if (sucursalId <= 0) throw new Error('ID de sucursal inválido');
-    if (cantidad < 0) throw new Error('La cantidad no puede ser negativa');
     if (usuarioCreadorId <= 0 || usuarioActualizadorId <= 0) {
       throw new Error('ID de usuario inválido');
     }
 
     return new this(
-      productoId,
+      id,
+      nombre,
+      direccion,
+      telefono,
       sucursalId,
-      cantidad,
       usuarioCreadorId,
       usuarioActualizadorId,
     );
