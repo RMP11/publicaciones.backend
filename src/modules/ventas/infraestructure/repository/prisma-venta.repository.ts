@@ -7,6 +7,19 @@ import { VentaRepository } from '../../dominio/venta.repository';
 export class PrismaVentaRepository implements VentaRepository {
   constructor(private _prismaService: PrismaService) {}
 
+  async findAll(body: { sucursalId: number }): Promise<Venta[]> {
+    const ventas = await this._prismaService.venta.findMany({
+      where: {
+        sucursalId: body.sucursalId,
+      },
+      include: {
+        empleado: true,
+        sucursal: true,
+      },
+    });
+    return ventas as unknown as Venta[];
+  }
+
   async create({ ventaDetalles, ...ventaParm }: Venta): Promise<Venta> {
     const venta = await this._prismaService.venta.create({
       data: {
