@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { BadRequestException, Inject } from '@nestjs/common';
 import {
   VentaRepository,
   ventaRepositoryDefinition,
@@ -23,8 +23,16 @@ export class RegistrarVentaEnSucursal {
       usuarioCreadorId: usuario?.id,
       usuarioActualizadorId: usuario?.id,
     };
-    const venta = Venta.create(crearVenta);
 
-    return await this._ventaRepository.create(venta);
+    try {
+      const venta = Venta.create(crearVenta);
+      return await this._ventaRepository.create(venta);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
+
+      throw error;
+    }
   }
 }
