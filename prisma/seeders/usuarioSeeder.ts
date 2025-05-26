@@ -13,6 +13,13 @@ export async function usuarioSeeder() {
       nombre: 'Juan Perez',
       usuarioCreadorId: 0,
       usuarioActualizadorId: 0,
+      empleado: {
+        create: {
+          nombre: 'Perez',
+          usuarioActualizadorId: 0,
+          usuarioCreadorId: 0,
+        },
+      },
     },
   });
 
