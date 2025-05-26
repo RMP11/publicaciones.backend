@@ -28,6 +28,7 @@ export class PrismaVentaRepository implements VentaRepository {
           createMany: {
             data: ventaDetalles.map((a) => ({
               ...a,
+              precioUnitario: a.precioUnitario.monto,
               usuarioCreadorId: ventaParm.usuarioCreadorId,
               usuarioActualizadorId: ventaParm.usuarioActualizadorId,
             })),

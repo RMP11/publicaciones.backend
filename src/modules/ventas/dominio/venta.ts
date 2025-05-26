@@ -1,4 +1,5 @@
 import { CreateVentaProps } from './interfaces/create-venta-props';
+import { Precio } from './precio';
 import { VentaDetalle } from './venta-detalle';
 export class Venta {
   private constructor(
@@ -61,7 +62,7 @@ export class Venta {
     const ventaDetallesDominio = ventaDetalles.map((vd) =>
       VentaDetalle.create({
         cantidad: vd.cantidad,
-        precioUnitario: vd.precioUnitario,
+        precioUnitario: new Precio(vd.precioUnitario),
         productoId: vd.productoId,
         usuarioActualizadorId: usuarioActualizadorId,
         usuarioCreadorId: usuarioCreadorId,

@@ -1,6 +1,8 @@
+import { Precio } from '../precio';
+
 export interface CreateVentaDetalleProps {
   cantidad: number;
-  precioUnitario: number;
+  readonly precioUnitario: Precio;
   productoId: number;
   usuarioCreadorId: number;
   usuarioActualizadorId: number;
