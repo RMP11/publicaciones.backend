@@ -2,7 +2,6 @@ import { IsInt, IsNumber, IsPositive } from 'class-validator';
 
 export class VentaDetalleDto {
   @IsInt()
-  @IsPositive()
   cantidad: number;
 
   @IsNumber()
