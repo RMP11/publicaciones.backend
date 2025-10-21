@@ -14,7 +14,46 @@ export class Venta {
     public usuarioActualizadorId: number,
   ) {}
 
-  public static create({
+  public static create(body: CreateVentaProps): Venta {
+    const fechaActual = new Date();
+
+    const {
+      cliente,
+      total,
+      descuento,
+      empleadoId,
+      sucursalId,
+      usuarioCreadorId,
+      usuarioActualizadorId,
+      ventaDetalles,
+    } = this.validar(body);
+
+    const ventaDetallesDominio = ventaDetalles.map((vd) =>
+      VentaDetalle.create({
+        cantidad: vd.cantidad,
+        precioUnitario: new Precio(vd.precioUnitario),
+        productoId: vd.productoId,
+        usuarioActualizadorId: usuarioActualizadorId,
+        usuarioCreadorId: usuarioCreadorId,
+      }),
+    );
+
+    const venta = new this(
+      cliente,
+      total,
+      descuento,
+      fechaActual,
+      empleadoId,
+      sucursalId,
+      ventaDetallesDominio,
+      usuarioCreadorId,
+      usuarioActualizadorId,
+    );
+
+    return venta;
+  }
+
+  private static validar({
     cliente,
     total,
     descuento,
@@ -23,10 +62,7 @@ export class Venta {
     usuarioCreadorId,
     usuarioActualizadorId,
     ventaDetalles,
-  }: CreateVentaProps): Venta {
-    const fechaActual = new Date();
-
-    // 🛡️ Invariantes del dominio
+  }: CreateVentaProps) {
     if (!cliente || cliente.trim() === '') {
       throw new Error('El cliente es requerido');
     }
@@ -59,28 +95,15 @@ export class Venta {
       throw new Error('ID de usuario inválido');
     }
 
-    const ventaDetallesDominio = ventaDetalles.map((vd) =>
-      VentaDetalle.create({
-        cantidad: vd.cantidad,
-        precioUnitario: new Precio(vd.precioUnitario),
-        productoId: vd.productoId,
-        usuarioActualizadorId: usuarioActualizadorId,
-        usuarioCreadorId: usuarioCreadorId,
-      }),
-    );
-
-    const venta = new this(
-      cliente,
+    return {
       total,
       descuento,
-      fechaActual,
+      cliente,
       empleadoId,
       sucursalId,
-      ventaDetallesDominio,
       usuarioCreadorId,
       usuarioActualizadorId,
-    );
-
-    return venta;
+      ventaDetalles,
+    };
   }
 }

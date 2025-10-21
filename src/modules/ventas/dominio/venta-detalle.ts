@@ -18,7 +18,6 @@ export class VentaDetalle {
     usuarioCreadorId,
     usuarioActualizadorId,
   }: CreateVentaDetalleProps): VentaDetalle {
-    // 🛡️ Invariantes del dominio
     if (cantidad <= 0) {
       throw new Error('La cantidad debe ser mayor a 0');
     }
