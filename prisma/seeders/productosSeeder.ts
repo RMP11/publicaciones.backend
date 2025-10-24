@@ -108,7 +108,8 @@ export async function productosSeeder() {
         deletedAt: null,
       },
     ],
-  });
+    skipDuplicates: true,
+  } as any);
 
   console.log('Seeding de productos terminado.');
 }
