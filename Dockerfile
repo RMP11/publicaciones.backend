@@ -11,11 +11,13 @@ RUN yarn install
 
 COPY . .
 
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
 RUN npx prisma generate
-RUN npx prisma db push
 
 
 RUN npm run build
 
 EXPOSE 5000
-CMD ["node", "dist/src/main.js"]
+CMD npx prisma db push && npm run seed && node dist/src/main.js
