@@ -20,4 +20,4 @@ RUN npx prisma generate
 RUN npm run build
 
 EXPOSE 5000
-CMD npx prisma db push && npm run seed && node dist/src/main.js
+CMD ["sh", "-c", "npx prisma db push && npm run seed && node dist/src/main.js"]
