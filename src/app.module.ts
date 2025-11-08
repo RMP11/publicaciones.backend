@@ -9,6 +9,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { VentasModule } from './modules/ventas/infraestructure/ventas.module';
 import { ProductosModulo } from './modules/productos/infraestructure/productos.module';
 import { SucursalesModule } from './modules/unidad-operativa/sucursales/infraestructure/sucursales.module';
+import { CuponesModule } from './modules/cupones/cupones.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { SucursalesModule } from './modules/unidad-operativa/sucursales/infraest
     VentasModule,
     ProductosModulo,
     SucursalesModule,
+    CuponesModule
   ],
   controllers: [AppController],
   providers: [AppService],
