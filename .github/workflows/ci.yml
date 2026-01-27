@@ -36,10 +36,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: backend-lint
 
-    defaults:
-      run:
-        working-directory: backend
-
     steps:
       - uses: actions/checkout@v4
 
@@ -75,10 +71,6 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://test:test@localhost:5432/testdb
-
-    defaults:
-      run:
-        working-directory: backend
 
     steps:
       - uses: actions/checkout@v4
