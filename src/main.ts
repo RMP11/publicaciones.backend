@@ -9,9 +9,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
 
-  app.enableCors({
-    origin: 'http://localhost:4000',
-  });
+  app.enableCors();
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
@@ -20,7 +18,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('API REST')
     .setDescription('API description')
-    .setVersion('1.0')
+    .setVersion('1.1')
     .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);

@@ -5,14 +5,20 @@ const prisma = new PrismaClient();
 export async function permisosSeeder() {
   console.log('Seeding permisos...');
 
-  const data = [
+  const permisos = [
     { nombre: 'Super Admin', usuarioCreadorId: 0, usuarioActualizadorId: 0 },
     { nombre: 'admin', usuarioCreadorId: 0, usuarioActualizadorId: 0 },
   ];
 
-  await prisma.permiso.createMany({
-    data,
-  });
+  await prisma.$transaction(
+    permisos.map((p) =>
+      prisma.permiso.upsert({
+        where: { nombre: p.nombre },
+        create: p,
+        update: p,
+      })
+    )
+  );
 
   console.log('Seeding de permisos terminado.');
 }
