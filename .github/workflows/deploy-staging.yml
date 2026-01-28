@@ -18,6 +18,7 @@ concurrency:
 env:
   ENVIRONMENT: staging
   HEALTH_CHECK_TIMEOUT: 30
+  RELEASE_TAG: ${{ github.event.release.tag_name }}
 
 jobs:
   deploy:
@@ -57,7 +58,6 @@ jobs:
             set -e
             cd ${{ secrets.STAGING_PATH }}
 
-            RELEASE_TAG="${{ steps.release.outputs.release_tag }}"
             TIMESTAMP=$(date +%Y%m%d-%H%M%S)
             RELEASE_DIR="releases/${TIMESTAMP}"
             ARTIFACT_NAME="sistema-ventas-${RELEASE_TAG}"
