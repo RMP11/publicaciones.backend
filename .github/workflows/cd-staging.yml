@@ -70,10 +70,8 @@ jobs:
           key: ${{ secrets.STAGING_SSH_KEY }}
           port: ${{ secrets.STAGING_SSH_PORT || 22 }}
           source: "release.tar.gz"
-          target: "/tmp/release-${{ github.sha }}.tar.gz"
-          overwrite: true
-          # Añade esto para asegurar que lo trate como archivo:
-          rm: true
+         target: "/tmp"            # <-- SUBE A /TMP, NO AL ARCHIVO
+          strip_components: 1
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.2
@@ -102,7 +100,7 @@ jobs:
 
             # 2. Extraer artefacto
             echo "📂 Extrayendo archivos..."
-            tar -xzf "$ARTIFACT_SOURCE" -C "$RELEASE_PATH"
+            tar -xzf "$ARTIFACT_SOURCE"/*.tar.gz -C "$RELEASE_PATH"
             rm -f "$ARTIFACT_SOURCE"
 
             # 3. Enlaces simbólicos (shared files)
