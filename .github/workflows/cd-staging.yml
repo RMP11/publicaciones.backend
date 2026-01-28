@@ -71,6 +71,9 @@ jobs:
           port: ${{ secrets.STAGING_SSH_PORT || 22 }}
           source: "release.tar.gz"
           target: "/tmp/release-${{ github.sha }}.tar.gz"
+          overwrite: true
+          # Añade esto para asegurar que lo trate como archivo:
+          rm: true
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.2
