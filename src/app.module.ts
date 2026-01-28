@@ -9,6 +9,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { VentasModule } from './modules/ventas/infraestructure/ventas.module';
 import { ProductosModulo } from './modules/productos/infraestructure/productos.module';
 import { SucursalesModule } from './modules/unidad-operativa/sucursales/infraestructure/sucursales.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { SucursalesModule } from './modules/unidad-operativa/sucursales/infraest
     ProductosModulo,
     SucursalesModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, HealthController],
   providers: [AppService],
 })
 export class AppModule {}

@@ -1,9 +1,11 @@
 name: CI Pipeline
 
+# Solo PR y pushes a main (aunque push directo estará bloqueado por la protección de rama)
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
-  pull_request:
 
 jobs:
   # ----------------------------
@@ -43,7 +45,6 @@ jobs:
 
       - run: npm ci
       - run: npm run typecheck
-      # - run: npm run lint -- --max-warnings=0
 
   backend-tests:
     name: Tests Backend (SQLite)
