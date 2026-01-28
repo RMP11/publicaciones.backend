@@ -19,7 +19,6 @@ env:
   ENVIRONMENT: staging
   HEALTH_CHECK_TIMEOUT: 30
 
-
 jobs:
   deploy:
     name: Deploy to Staging
