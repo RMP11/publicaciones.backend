@@ -72,6 +72,7 @@ jobs:
           source: "release.tar.gz"
           target: "/tmp"
           strip_components: 1
+          overwrite: true
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.2
@@ -95,13 +96,22 @@ jobs:
             echo "🚀 Iniciando despliegue atómico Node.js v$TIMESTAMP"
 
             # 1. Crear directorio para la nueva release
+            ARTIFACT_SOURCE="/tmp/release.tar.gz"
+
             echo "📦 Creando directorio $RELEASE_PATH"
             mkdir -p "$RELEASE_PATH"
 
             # 2. Extraer artefacto
-            echo "📂 Extrayendo archivos..."
-            tar -xzf "$ARTIFACT_SOURCE"/*.tar.gz -C "$RELEASE_PATH"
-            rm -f "$ARTIFACT_SOURCE"
+            if [ -f "$ARTIFACT_SOURCE" ]; then
+                echo "📂 Extrayendo $ARTIFACT_SOURCE..."
+                tar -xzf "$ARTIFACT_SOURCE" -C "$RELEASE_PATH"
+                rm -f "$ARTIFACT_SOURCE"
+            else
+                echo "❌ ERROR: El archivo no existe en $ARTIFACT_SOURCE"
+                echo "Contenido de /tmp para debug:"
+                ls -F /tmp
+                exit 1
+            fi
 
             # 3. Enlaces simbólicos (shared files)
             echo "🔗 Enlazando archivos compartidos..."
