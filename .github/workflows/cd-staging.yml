@@ -1,0 +1,169 @@
+name: CD Staging (Atomic)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  # ==================================================================
+  # JOB 1: BUILD
+  # ==================================================================
+  build:
+    name: Build Release
+    runs-on: ubuntu-latest
+    outputs:
+      artifact_name: release-${{ github.sha }}.tar.gz
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Build Frontend / Backend Assets
+        run: npm run build
+
+      - name: Clean Unneeded Files
+        run: |
+          rm -rf .git
+          rm -rf node_modules
+          rm -rf tests
+          rm -rf .github
+          rm -f .env
+
+      - name: Create Artifact
+        run: tar -czf release.tar.gz .
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-build
+          path: release.tar.gz
+          retention-days: 1
+
+  # ==================================================================
+  # JOB 2: DEPLOY
+  # ==================================================================
+  deploy:
+    name: Deploy to Staging
+    needs: build
+    runs-on: ubuntu-latest
+    environment: proyecto
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-build
+
+      - name: Transfer Release to Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_SSH_PORT || 22 }}
+          source: "release.tar.gz"
+          target: "/tmp/release-${{ github.sha }}.tar.gz"
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_SSH_PORT || 22 }}
+          script: |
+            set -e
+
+            # --- CONFIGURACIÓN ---
+            TIMESTAMP=$(date +%Y%m%d%H%M%S)
+            BASE_PATH=${{ secrets.STAGING_PATH || '/var/www/publicaciones' }}
+            RELEASE_PATH="$BASE_PATH/releases/$TIMESTAMP"
+            SHARED_PATH="$BASE_PATH/shared"
+            CURRENT_LINK="$BASE_PATH/current"
+            ARTIFACT_SOURCE="/tmp/release-${{ github.sha }}.tar.gz"
+            HEALTH_CHECK_URL="${{ secrets.STAGING_URL }}/api/health"
+
+            echo "🚀 Iniciando despliegue atómico Node.js v$TIMESTAMP"
+
+            # 1. Crear directorio para la nueva release
+            echo "📦 Creando directorio $RELEASE_PATH"
+            mkdir -p "$RELEASE_PATH"
+
+            # 2. Extraer artefacto
+            echo "📂 Extrayendo archivos..."
+            tar -xzf "$ARTIFACT_SOURCE" -C "$RELEASE_PATH"
+            rm -f "$ARTIFACT_SOURCE"
+
+            # 3. Enlaces simbólicos (shared files)
+            echo "🔗 Enlazando archivos compartidos..."
+            ln -nfs "$SHARED_PATH/.env" "$RELEASE_PATH/.env"
+            ln -nfs "$SHARED_PATH/uploads" "$RELEASE_PATH/uploads"
+            # Si hay carpeta public/storage, enlazarla también
+            # ln -nfs "$SHARED_PATH/public/storage" "$RELEASE_PATH/public/storage"
+
+            # 4. Permisos
+            chmod -R 775 "$RELEASE_PATH/storage"
+            chmod -R 775 "$RELEASE_PATH/bootstrap/cache"
+
+            # 5. Comandos de Proyecto (Migraciones, Cache)
+            echo "⚙️ Ejecutando tareas de Laravel..."
+            cd "$RELEASE_PATH"
+            npm ci
+
+            # 6. Switch Atómico (Preparamos rollback capturando el current actual)
+            echo "🔄 Realizando cambio de versión (Symlink)..."
+            # Leer donde apunta 'current' ahora mismo (si existe) para rollback
+            if [ -L "$CURRENT_LINK" ]; then
+                PREVIOUS_RELEASE=$(readlink "$CURRENT_LINK")
+                echo "   (Versión anterior era: $PREVIOUS_RELEASE)"
+            fi
+
+            # Actualizar symlink de forma atómica
+            ln -nfs "$RELEASE_PATH" "$CURRENT_LINK"
+
+            # 7. Switch atómico (rollback)
+            if [ -L "$CURRENT_LINK" ]; then
+              PREVIOUS_RELEASE=$(readlink "$CURRENT_LINK")
+            fi
+            ln -nfs "$RELEASE_PATH" "$CURRENT_LINK"
+
+            # 8. Reiniciar Node.js (PM2 o systemd)
+            if command -v pm2 > /dev/null; then
+              pm2 reload all || pm2 start dist/index.js --name my-app
+            else
+              sudo systemctl restart publicaciones || echo "⚠️ No se pudo reiniciar Node, revise servicio."
+            fi
+
+            # 9. Health Check & Rollback
+            sleep 5
+            if curl -f -s "$HEALTH_CHECK_URL" > /dev/null; then
+              echo "✅ Health check PASÓ"
+            else
+              echo "❌ Health check FALLÓ, iniciando rollback..."
+              if [ ! -z "$PREVIOUS_RELEASE" ]; then
+                ln -nfs "$PREVIOUS_RELEASE" "$CURRENT_LINK"
+                if command -v pm2 > /dev/null; then
+                  pm2 reload all
+                else
+                  sudo systemctl restart publicaciones
+                fi
+                echo "✅ Rollback completado"
+              else
+                echo "🚫 No hay release anterior para rollback"
+              fi
+              exit 1
+            fi
+
+            # 10. Limpiar releases antiguos (Keep 5)
+            cd "$BASE_PATH/releases"
+            ls -dt * | tail -n +6 | xargs -r rm -rf
+
+            echo "✨ Despliegue Node.js completado con éxito!"
