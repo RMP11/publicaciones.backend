@@ -26,7 +26,7 @@ env:
 jobs:
   build:
     name: Build Application
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       version: ${{ steps.version.outputs.version }}
       release_name: ${{ steps.version.outputs.release_name }}
