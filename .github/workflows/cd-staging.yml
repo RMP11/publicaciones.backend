@@ -70,7 +70,7 @@ jobs:
           key: ${{ secrets.STAGING_SSH_KEY }}
           port: ${{ secrets.STAGING_SSH_PORT || 22 }}
           source: "release.tar.gz"
-         target: "/tmp"            # <-- SUBE A /TMP, NO AL ARCHIVO
+          target: "/tmp"
           strip_components: 1
 
       - name: Deploy via SSH
