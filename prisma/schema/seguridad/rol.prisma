@@ -1,0 +1,14 @@
+model Rol {
+  id            Int          @id @default(autoincrement())
+  nombre        String       @unique
+  usuariosRoles UsuarioRol[]
+  rolesPermisos RolPermiso[]
+
+  usuarioCreadorId      Int?
+  usuarioActualizadorId Int?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now()) @updatedAt
+  deletedAt           DateTime?
+
+  @@map("roles")
+}

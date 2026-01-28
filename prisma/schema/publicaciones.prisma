@@ -1,0 +1,14 @@
+model Publicaciones {
+  id        Int    @id @default(autoincrement())
+  titulo    String
+  contenido String
+  autor     String
+
+  usuarioCreadorId      Int?
+  usuarioActualizadorId Int?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now()) @updatedAt
+  deletedAt           DateTime?
+
+  @@map("publicaciones")
+}

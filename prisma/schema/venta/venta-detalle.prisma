@@ -1,0 +1,19 @@
+model VentaDetalle {
+  id             Int   @id @default(autoincrement())
+  cantidad       Int
+  precioUnitario Float
+
+  producto   Producto @relation(fields: [productoId], references: [id])
+  productoId Int
+
+  venta   Venta @relation(fields: [ventaId], references: [id])
+  ventaId Int
+
+  usuarioCreadorId      Int?
+  usuarioActualizadorId Int?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now()) @updatedAt
+  deletedAt           DateTime?
+
+  @@map("venta_detalle")
+}

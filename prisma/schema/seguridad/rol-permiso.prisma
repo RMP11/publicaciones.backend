@@ -1,0 +1,15 @@
+model RolPermiso {
+  rolId     Int
+  permisoId Int
+  rol       Rol     @relation(fields: [rolId], references: [id])
+  permiso   Permiso @relation(fields: [permisoId], references: [id])
+
+  usuarioCreadorId      Int?
+  usuarioActualizadorId Int?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now()) @updatedAt
+  deletedAt           DateTime?
+
+  @@id([rolId, permisoId]) // Llave primaria compuesta
+  @@map("roles_permisos")
+}

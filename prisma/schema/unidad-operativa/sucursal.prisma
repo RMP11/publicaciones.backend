@@ -1,0 +1,15 @@
+model Sucursal {
+  id          Int      @id @default(autoincrement())
+  descripcion String
+  esTienda    Boolean?
+
+  usuarioCreadorId      Int?
+  usuarioActualizadorId Int?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @default(now()) @updatedAt
+  deletedAt           DateTime?
+  ProductoSucursal    ProductoSucursal[]
+  Venta               Venta[]
+
+  @@map("sucursales")
+}

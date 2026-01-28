@@ -1,0 +1,16 @@
+model Usuario {
+  id            Int          @id @default(autoincrement())
+  correo        String       @unique
+  contrasena    String
+  nombre        String
+  empleado      Empleado?
+  usuariosRoles UsuarioRol[]
+
+  usuarioCreadorId      Int?
+  usuarioActualizadorId Int?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now()) @updatedAt
+  deletedAt           DateTime?
+
+  @@map("usuarios")
+}

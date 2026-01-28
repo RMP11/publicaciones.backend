@@ -1,0 +1,16 @@
+model Empleado {
+  id        Int     @id @default(autoincrement())
+  nombre    String
+  usuarioId Int     @unique
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+
+  ventas Venta[]
+
+  usuarioCreadorId      Int?
+  usuarioActualizadorId Int?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now()) @updatedAt
+  deletedAt           DateTime?
+
+  @@map("empleados")
+}
