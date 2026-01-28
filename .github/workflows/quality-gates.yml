@@ -68,5 +68,3 @@ jobs:
           else
             echo "Backend Quality: FAILED" >> $GITHUB_STEP_SUMMARY
           fi
-          if [ "${{ needs.frontend-quality.result }}" == "success" ]; then
-            echo "Frontend Qua
