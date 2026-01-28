@@ -24,7 +24,7 @@ describe('HealthController (e2e)', () => {
   });
 
   it('/GET health', async () => {
-    const res = await request(app.getHttpServer()).get('/health').expect(201);
+    const res = await request(app.getHttpServer()).get('/health').expect(200);
 
     expect(res.body).toHaveProperty('status', 'ok');
     expect(res.body).toHaveProperty('database', 'connected');
