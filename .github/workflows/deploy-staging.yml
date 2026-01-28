@@ -22,7 +22,7 @@ env:
 jobs:
   deploy:
     name: Deploy to Staging
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: |
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'develop')
@@ -45,14 +45,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy Application
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER }}
-          key: ${{ secrets.STAGING_SSH_KEY }}
-          port: ${{ secrets.STAGING_SSH_PORT }}
-          command_timeout: 10m
-          script: |
+        # uses: appleboy/ssh-action@v1.2.2
+        # with:
+        #   host: ${{ secrets.STAGING_HOST }}
+        #   username: ${{ secrets.STAGING_USER }}
+        #   key: ${{ secrets.STAGING_SSH_KEY }}
+        #   port: ${{ secrets.STAGING_SSH_PORT }}
+        #   command_timeout: 10m
+        run: |
             set -e
             cd ${{ secrets.STAGING_PATH }}
 
