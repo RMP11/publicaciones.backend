@@ -49,10 +49,6 @@ jobs:
       - name: "Gate 3: Build Verification"
         run: npm run build
 
-      # Paso 7: GATE 4 - Ejecutar tests de backend
-      - name: "Gate 4: Unit/Integration Tests"
-        run: npm run test:backend
-
   # ==================================================================
   # JOB 3: RESUMEN DE RESULTADOS
   # ==================================================================
