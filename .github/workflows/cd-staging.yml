@@ -11,7 +11,7 @@ jobs:
   # ==================================================================
   build:
     name: Build Release
-    runs-on: ubuntu-latest
+    runs-on: self-hosted 
     outputs:
       artifact_name: release-${{ github.sha }}.tar.gz
     steps:
@@ -54,8 +54,8 @@ jobs:
   deploy:
     name: Deploy to Staging
     needs: build
-    runs-on: ubuntu-latest
-    environment: proyecto
+    runs-on: self-hosted
+    environment: Proyecto
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v4
