@@ -29,7 +29,7 @@ jobs:
     env:
       APP_PATH: ${{ secrets.STAGING_PATH }}
     steps:
-      - name: Setup Node.js ${{ env.NODE_VERSION }} .
+      - name: Setup Node.js ${{ env.NODE_VERSION }} 1
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
