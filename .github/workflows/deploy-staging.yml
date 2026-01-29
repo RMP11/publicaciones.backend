@@ -29,7 +29,7 @@ jobs:
     env:
       APP_PATH: ${{ secrets.STAGING_PATH }}
     steps:
-      - name: Setup Node.js ${{ env.NODE_VERSION }} 3
+      - name: Setup Node.js ${{ env.NODE_VERSION }} 4
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -77,12 +77,25 @@ jobs:
           mv -Tf "${APP_PATH}/current.new" "${APP_PATH}/current"
           
           echo "🔃 Reiniciando con PM2"
-          # Usamos la ruta absoluta para evitar el error 'command not found'
-          # Si 'which pm2' te da otra ruta, cámbiala aquí:
-          PM2_PATH=$(which pm2 || echo "/usr/local/bin/pm2")
+          # Buscamos la ruta real de pm2 en el servidor
+          REAL_PM2=$(which pm2)
           
+          # Si no lo encuentra con 'which', intentamos la ruta común de npm global
+          if [ -z "$REAL_PM2" ]; then
+            REAL_PM2="$HOME/.npm-global/bin/pm2"
+          fi
+          
+          # Si aún no aparece, probamos la ruta de NVM (muy común)
+          if [ ! -f "$REAL_PM2" ]; then
+            REAL_PM2=$(find $HOME/.nvm/versions/node -name pm2 -type f -executable -print -quit 2>/dev/null)
+          fi
+
+          echo "🚀 Usando PM2 desde: $REAL_PM2"
+
           cd "${APP_PATH}/current"
-          $PM2_PATH reload ecosystem.config.js --env staging || $PM2_PATH start dist/index.js --name "sistema-ventas"
+          
+          # Ejecutamos usando la variable que encontramos
+          $REAL_PM2 reload ecosystem.config.js --env staging || $REAL_PM2 start dist/index.js --name "sistema-ventas"
           
           echo "🧹 Limpieza"
           rm -rf "/tmp/deploy-${TIMESTAMP}"
