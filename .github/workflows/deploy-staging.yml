@@ -41,9 +41,9 @@ jobs:
       - name: Deploy Local
         env:
           RELEASE_TAG: ${{ steps.last_release.outputs.tag }}
+          APP_PATH: ${{ secrets.STAGING_PATH }}
         run: |
           # 1. Definir rutas (Usa rutas absolutas para evitar el error ***)
-          APP_PATH="${{ secrets.STAGING_PATH }}"
 
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           RELEASE_DIR="${APP_PATH}/releases/${TIMESTAMP}"
