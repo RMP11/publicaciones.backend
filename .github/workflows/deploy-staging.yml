@@ -29,7 +29,7 @@ jobs:
     env:
       APP_PATH: ${{ secrets.STAGING_PATH }}
     steps:
-      - name: Setup Node.js ${{ env.NODE_VERSION }} 7
+      - name: Setup Node.js ${{ env.NODE_VERSION }} 8
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -102,7 +102,7 @@ jobs:
           $PM2_BIN reload ecosystem.config.js --env staging || $PM2_BIN start ecosystem.config.js --env staging || $PM2_BIN start dist/index.js --name "sistema-ventas"
           
           $PM2_BIN save
-          
+
           echo "✅ Despliegue completado con éxito"
                     
           echo "🧹 Limpieza"
