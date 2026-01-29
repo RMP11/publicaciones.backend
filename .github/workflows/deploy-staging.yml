@@ -26,7 +26,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
     steps:
-      - name: Setup Node.js ${{ env.NODE_VERSION }} - v2
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -42,8 +42,6 @@ jobs:
         env:
           RELEASE_TAG: ${{ steps.last_release.outputs.tag }}
         run: |
-          NPM_PATH=$(which npm || echo "/usr/bin/npm")
-
           # 1. Definir rutas (Usa rutas absolutas para evitar el error ***)
           APP_PATH: ${{ secrets.STAGING_PATH }}
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
@@ -67,7 +65,7 @@ jobs:
           
           echo "⚙️ Instalando dependencias"
           cd "${RELEASE_DIR}"
-          $NPM_PATH ci --production
+          npm ci --production
           
           echo "⚡ Cambio atómico de versión"
           ln -sfn "${RELEASE_DIR}" "${APP_PATH}/current.new"
