@@ -20,88 +20,68 @@ env:
   HEALTH_CHECK_TIMEOUT: 30
   RELEASE_TAG: ${{ github.event.release.tag_name }}
 
-jobs:
-  deploy:
-    name: Deploy to Staging
-    runs-on: self-hosted
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'develop')
-    environment: staging
+deploy:
+    name: Deploy to Server
+    needs: build # <--- Obligatorio para poder usar los outputs del build
+    runs-on: ubuntu-latest # O el runner que utilices
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-
-      - name: Get Release Tag
-        id: release
-        run: |
-          if [ -n "${{ github.event.inputs.release_tag }}" ]; then
-            RELEASE_TAG="${{ github.event.inputs.release_tag }}"
-          else
-            RELEASE_TAG=$(gh release list --limit 10 | grep -E 'develop' | head -1 | awk '{print $1}' || echo "")
-            if [ -z "$RELEASE_TAG" ]; then echo "No release found"; exit 1; fi
-          fi
-          echo "release_tag=${RELEASE_TAG}" >> $GITHUB_OUTPUT
+      - name: SSH Deploy
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          # Inyectamos la variable del build al entorno del script SSH
+          envs: RELEASE_TAG
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Deploy Application
-        # uses: appleboy/ssh-action@v1.2.2
-        # with:
-        #   host: ${{ secrets.STAGING_HOST }}
-        #   username: ${{ secrets.STAGING_USER }}
-        #   key: ${{ secrets.STAGING_SSH_KEY }}
-        #   port: ${{ secrets.STAGING_SSH_PORT }}
-        #   command_timeout: 10m
-        run: |
-            set -e
-            cd ${{ secrets.STAGING_PATH }}
-
-            TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-            RELEASE_DIR="releases/${TIMESTAMP}"
-            ARTIFACT_NAME="sistema-ventas-${RELEASE_TAG}"
-            DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/${RELEASE_TAG}/${ARTIFACT_NAME}.tar.gz"
-
-            echo "📦 Descargando release: ${RELEASE_TAG}"
-            mkdir -p "/tmp/deploy-${TIMESTAMP}"
-            curl -fsSL -o "/tmp/deploy-${TIMESTAMP}/${ARTIFACT_NAME}.tar.gz" "$DOWNLOAD_URL"
-
-            echo "📂 Extrayendo en ${RELEASE_DIR}"
-            mkdir -p "${RELEASE_DIR}"
-            tar -xzf "/tmp/deploy-${TIMESTAMP}/${ARTIFACT_NAME}.tar.gz" -C "${RELEASE_DIR}"
-
-            echo "🔗 Enlazando configuración (.env) y uploads"
-            # Node.js suele usar .env y carpetas de archivos subidos
-            ln -sfn "$(pwd)/shared/.env" "${RELEASE_DIR}/.env"
-            if [ -d "$(pwd)/shared/uploads" ]; then
-              ln -sfn "$(pwd)/shared/uploads" "${RELEASE_DIR}/uploads"
-            fi
-
-            echo "⚙️ Instalando dependencias de producción"
-            cd "${RELEASE_DIR}"
-            # npm ci es más rápido y seguro para deploys
-            npm ci --production
-
-            # Si usas TypeScript y necesitas transpilar en el servidor (opcional):
-            # npm run build 
-
-            echo "⚡ Cambio atómico de versión"
-            cd ${{ secrets.STAGING_PATH }}
-            ln -sfn "$(pwd)/${RELEASE_DIR}" current.new
-            mv -Tf current.new current
-
-            echo "🔃 Reiniciando aplicación con PM2"
-            # Usamos reload para que no haya tiempo de inactividad
-            cd current
-            pm2 reload ecosystem.config.js --env staging || pm2 start dist/index.js --name "mi-app-node"
-
-            echo "🧹 Limpieza"
-            rm -rf "/tmp/deploy-${TIMESTAMP}"
-            cd ../releases
-            ls -t | tail -n +4 | xargs -r rm -rf
-
-            echo "✅ Despliegue Node.js completado"
+          RELEASE_TAG: ${{ needs.build.outputs.release_name }}
+        script: |
+          set -e
+          
+          # 1. Definir rutas (Usa rutas absolutas para evitar el error ***)
+          APP_PATH="/var/www/tu-app" # <--- CAMBIA ESTO por tu ruta real
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          RELEASE_DIR="${APP_PATH}/releases/${TIMESTAMP}"
+          ARTIFACT_NAME="sistema-ventas-${RELEASE_TAG}"
+          DOWNLOAD_URL="https://github.com/RMP11/publicaciones.backend/releases/download/${RELEASE_TAG}/${ARTIFACT_NAME}.tar.gz"
+          
+          echo "📦 Descargando release: ${RELEASE_TAG}"
+          mkdir -p "/tmp/deploy-${TIMESTAMP}"
+          curl -fsSL -o "/tmp/deploy-${TIMESTAMP}/${ARTIFACT_NAME}.tar.gz" "$DOWNLOAD_URL"
+          
+          echo "📂 Extrayendo en ${RELEASE_DIR}"
+          mkdir -p "${RELEASE_DIR}"
+          tar -xzf "/tmp/deploy-${TIMESTAMP}/${ARTIFACT_NAME}.tar.gz" -C "${RELEASE_DIR}"
+          
+          echo "🔗 Enlazando configuración y uploads"
+          ln -sfn "${APP_PATH}/shared/.env" "${RELEASE_DIR}/.env"
+          if [ -d "${APP_PATH}/shared/uploads" ]; then
+            ln -sfn "${APP_PATH}/shared/uploads" "${RELEASE_DIR}/uploads"
+          fi
+          
+          echo "⚙️ Instalando dependencias"
+          cd "${RELEASE_DIR}"
+          npm ci --production
+          
+          echo "⚡ Cambio atómico de versión"
+          ln -sfn "${RELEASE_DIR}" "${APP_PATH}/current.new"
+          mv -Tf "${APP_PATH}/current.new" "${APP_PATH}/current"
+          
+          echo "🔃 Reiniciando con PM2"
+          # Usamos la ruta absoluta para evitar el error 'command not found'
+          # Si 'which pm2' te da otra ruta, cámbiala aquí:
+          PM2_PATH=$(which pm2 || echo "/usr/local/bin/pm2")
+          
+          cd "${APP_PATH}/current"
+          $PM2_PATH reload ecosystem.config.js --env staging || $PM2_PATH start dist/index.js --name "sistema-ventas"
+          
+          echo "🧹 Limpieza"
+          rm -rf "/tmp/deploy-${TIMESTAMP}"
+          cd "${APP_PATH}/releases"
+          ls -t | tail -n +4 | xargs -r rm -rf
+          
+          echo "✅ Despliegue completado"
 
       - name: Health Check
         run: |
