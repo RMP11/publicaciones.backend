@@ -77,26 +77,31 @@ jobs:
           mv -Tf "${APP_PATH}/current.new" "${APP_PATH}/current"
           
           echo "🔃 Reiniciando con PM2"
-          # Buscamos la ruta real de pm2 en el servidor
-          REAL_PM2=$(which pm2)
           
-          # Si no lo encuentra con 'which', intentamos la ruta común de npm global
-          if [ -z "$REAL_PM2" ]; then
-            REAL_PM2="$HOME/.npm-global/bin/pm2"
-          fi
+          # 1. Localizar PM2 (Esto evita el error de "No such file or directory")
+          PM2_BIN=$(which pm2 || find $HOME -name pm2 -type f -executable -print -quit 2>/dev/null)
           
-          # Si aún no aparece, probamos la ruta de NVM (muy común)
-          if [ ! -f "$REAL_PM2" ]; then
-            REAL_PM2=$(find $HOME/.nvm/versions/node -name pm2 -type f -executable -print -quit 2>/dev/null)
+          if [ -z "$PM2_BIN" ]; then
+            echo "❌ Error: No se encontró PM2 en el servidor."
+            exit 1
           fi
-
-          echo "🚀 Usando PM2 desde: $REAL_PM2"
 
           cd "${APP_PATH}/current"
           
-          # Ejecutamos usando la variable que encontramos
-          $REAL_PM2 reload ecosystem.config.js --env staging || $REAL_PM2 start dist/index.js --name "sistema-ventas"
+          # 2. Lógica de reinicio:
+          # Si existe ecosystem.config.js, lo usamos. 
+          # Si no, intentamos reiniciar por nombre o arrancar el index.js
+          if [ -f "ecosystem.config.js" ]; then
+            echo "📝 Usando ecosystem.config.js"
+            $PM2_BIN reload ecosystem.config.js --env staging || $PM2_BIN start ecosystem.config.js --env staging
+          else
+            echo "🚀 Usando inicio directo (dist/index.js)"
+            $PM2_BIN restart "sistema-ventas" || $PM2_BIN start dist/index.js --name "sistema-ventas"
+          fi
           
+          $PM2_BIN save
+          echo "✅ Despliegue completado con éxito"
+                    
           echo "🧹 Limpieza"
           rm -rf "/tmp/deploy-${TIMESTAMP}"
           cd "${APP_PATH}/releases"
