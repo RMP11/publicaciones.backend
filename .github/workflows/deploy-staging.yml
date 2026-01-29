@@ -20,6 +20,7 @@ env:
   HEALTH_CHECK_TIMEOUT: 30
   RELEASE_TAG: ${{ github.event.release.tag_name }}
 
+
 deploy:
     name: Deploy to Server
     needs: build
