@@ -23,6 +23,7 @@ env:
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Deploy to Server
     runs-on: self-hosted
     steps:
