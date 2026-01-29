@@ -19,14 +19,14 @@ env:
   ENVIRONMENT: staging
   HEALTH_CHECK_TIMEOUT: 30
   RELEASE_TAG: ${{ github.event.release.tag_name }}
-
+  NODE_VERSION: "20"
 
 jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
     steps:
-      - name: Setup Node.js ${{ env.NODE_VERSION }}
+      - name: Setup Node.js ${{ env.NODE_VERSION }}.
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
