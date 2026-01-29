@@ -23,9 +23,15 @@ env:
 
 jobs:
   deploy:
-    name: Deploy to Server
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
     steps:
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
       - name: Get Latest Release
         id: last_release
         run: |
@@ -36,8 +42,10 @@ jobs:
         env:
           RELEASE_TAG: ${{ steps.last_release.outputs.tag }}
         run: |
+          NPM_PATH=$(which npm || echo "/usr/bin/npm")
+
           # 1. Definir rutas (Usa rutas absolutas para evitar el error ***)
-          APP_PATH="/var/www/tu-app" # <--- CAMBIA ESTO por tu ruta real
+          APP_PATH="${STAGING_PATH}"
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           RELEASE_DIR="${APP_PATH}/releases/${TIMESTAMP}"
           ARTIFACT_NAME="sistema-ventas-${RELEASE_TAG}"
@@ -59,7 +67,7 @@ jobs:
           
           echo "⚙️ Instalando dependencias"
           cd "${RELEASE_DIR}"
-          npm ci --production
+          $NPM_PATH ci --production
           
           echo "⚡ Cambio atómico de versión"
           ln -sfn "${RELEASE_DIR}" "${APP_PATH}/current.new"
