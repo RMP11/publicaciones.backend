@@ -19,7 +19,7 @@ env:
   ENVIRONMENT: staging
   HEALTH_CHECK_TIMEOUT: 30
   RELEASE_TAG: ${{ github.event.release.tag_name }}
-
+  NODE_VERSION: "20"
 
 jobs:
   deploy:
