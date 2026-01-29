@@ -21,7 +21,11 @@ env:
   RELEASE_TAG: ${{ github.event.release.tag_name }}
 
 
-deploy:
+jobs:
+  deploy:
+    if: |
+      github.event_name == 'workflow_dispatch' || 
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     name: Deploy to Server
     runs-on: self-hosted
     steps:
