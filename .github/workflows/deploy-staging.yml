@@ -21,9 +21,9 @@ env:
   RELEASE_TAG: ${{ github.event.release.tag_name }}
 
 
-jobs:
-  build:
+deploy:
     name: Deploy to Server
+    needs: build
     runs-on: self-hosted
     steps:
       - name: Get Latest Release
