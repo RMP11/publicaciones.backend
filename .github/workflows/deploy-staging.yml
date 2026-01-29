@@ -42,8 +42,6 @@ jobs:
         env:
           RELEASE_TAG: ${{ steps.last_release.outputs.tag }}
         run: |
-          NPM_PATH=$(which npm || echo "/usr/bin/npm")
-
           # 1. Definir rutas (Usa rutas absolutas para evitar el error ***)
           APP_PATH: ${{ secrets.STAGING_PATH }}
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
@@ -67,7 +65,7 @@ jobs:
           
           echo "⚙️ Instalando dependencias"
           cd "${RELEASE_DIR}"
-          $NPM_PATH ci --production
+          npm ci --production
           
           echo "⚡ Cambio atómico de versión"
           ln -sfn "${RELEASE_DIR}" "${APP_PATH}/current.new"
