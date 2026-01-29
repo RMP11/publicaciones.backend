@@ -25,8 +25,11 @@ jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
+    environment: staging
+    env:
+      APP_PATH: ${{ secrets.STAGING_PATH }}
     steps:
-      - name: Setup Node.js ${{ env.NODE_VERSION }}
+      - name: Setup Node.js ${{ env.NODE_VERSION }} 2
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -41,8 +44,9 @@ jobs:
       - name: Deploy Local
         env:
           RELEASE_TAG: ${{ steps.last_release.outputs.tag }}
-          APP_PATH: ${{ secrets.STAGING_PATH }}
         run: |
+          echo "La ruta es: $APP_PATH" # Aquí debe imprimir el valor
+
           # 1. Definir rutas (Usa rutas absolutas para evitar el error ***)
 
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
