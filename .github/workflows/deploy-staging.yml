@@ -29,7 +29,7 @@ jobs:
     env:
       APP_PATH: ${{ secrets.STAGING_PATH }}
     steps:
-      - name: Setup Node.js ${{ env.NODE_VERSION }} 6
+      - name: Setup Node.js ${{ env.NODE_VERSION }} 7
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -78,28 +78,31 @@ jobs:
           
           echo "🔃 Reiniciando con PM2"
           
-          # 1. Localizar PM2 (Esto evita el error de "No such file or directory")
-          PM2_BIN=$(which pm2 || find $HOME -name pm2 -type f -executable -print -quit 2>/dev/null)
+          # 1. Intentar cargarlo desde el PATH (si existe)
+          PM2_BIN=$(which pm2)
           
+          # 2. Si no existe, buscar en las rutas comunes de NVM y NPM Global
           if [ -z "$PM2_BIN" ]; then
-            echo "❌ Error: No se encontró PM2 en el servidor."
-            exit 1
+            echo "🔍 Buscando PM2 en rutas alternativas..."
+            PM2_BIN=$(find $HOME/.nvm/versions/node/*/bin/pm2 $HOME/.npm-global/bin/pm2 /usr/local/bin/pm2 /usr/bin/pm2 -type f -executable -print -quit 2>/dev/null | head -n 1)
           fi
+
+          # 3. Validar si finalmente se encontró
+          if [ -z "$PM2_BIN" ] || [ ! -x "$PM2_BIN" ]; then
+            echo "❌ Error: PM2 no se encontró. Intentando instalarlo localmente..."
+            npm install pm2 -g
+            PM2_BIN=$(which pm2)
+          fi
+
+          echo "🚀 Usando PM2 en: $PM2_BIN"
 
           cd "${APP_PATH}/current"
           
-          # 2. Lógica de reinicio:
-          # Si existe ecosystem.config.js, lo usamos. 
-          # Si no, intentamos reiniciar por nombre o arrancar el index.js
-          if [ -f "ecosystem.config.js" ]; then
-            echo "📝 Usando ecosystem.config.js"
-            $PM2_BIN reload ecosystem.config.js --env staging || $PM2_BIN start ecosystem.config.js --env staging
-          else
-            echo "🚀 Usando inicio directo (dist/index.js)"
-            $PM2_BIN restart "sistema-ventas" || $PM2_BIN start dist/index.js --name "sistema-ventas"
-          fi
+          # Ejecutar con la ruta completa encontrada
+          $PM2_BIN reload ecosystem.config.js --env staging || $PM2_BIN start ecosystem.config.js --env staging || $PM2_BIN start dist/index.js --name "sistema-ventas"
           
           $PM2_BIN save
+          
           echo "✅ Despliegue completado con éxito"
                     
           echo "🧹 Limpieza"
