@@ -20,16 +20,22 @@ env:
   HEALTH_CHECK_TIMEOUT: 30
   RELEASE_TAG: ${{ github.event.release.tag_name }}
 
+
 deploy:
     name: Deploy to Server
     needs: build
     runs-on: self-hosted
-    env:
-      RELEASE_TAG: ${{ needs.build.outputs.release_name }}
     steps:
-      - name: Deploy Local
+      - name: Get Latest Release
+        id: last_release
         run: |
-
+            # Usamos la API de GitHub para saber cuál es el último tag
+            TAG=$(curl -s https://api.github.com/repos/RMP11/publicaciones.backend/releases/latest | jq -r .tag_name)
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+      - name: Deploy Local
+        env:
+          RELEASE_TAG: ${{ steps.last_release.outputs.tag }}
+        run: |
           # 1. Definir rutas (Usa rutas absolutas para evitar el error ***)
           APP_PATH="/var/www/tu-app" # <--- CAMBIA ESTO por tu ruta real
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
